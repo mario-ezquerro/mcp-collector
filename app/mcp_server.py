@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any
 from mcp.server.mcpserver import MCPServer
 from sqlalchemy import desc, func, select
+from app import __version__
 from app.database import AgentInsight, AgentRegistration, AsyncSessionLocal
 from app.schemas import (
     AgentRegisterPayload,
@@ -61,7 +62,7 @@ SIMULATED_CATALOG = [
 # Create the MCP Server instance
 mcp_server = MCPServer(
     name="MCPCollectorHub",
-    version="1.1.0",
+    version=__version__,
     description="A real-time MCP Hub, Product Catalog & Data Aggregator connecting external AI agents and streaming findings live to human operators.",
     instructions=(
         "You are connected to MCP Collector Hub. "

@@ -580,7 +580,7 @@
         <div>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span class="brand-title">MCP Collector</span>
-            <span class="brand-tag">Hub v1.1</span>
+            <span id="app-version-badge" class="brand-tag">v1.1.0</span>
           </div>
         </div>
       </a>
@@ -997,7 +997,24 @@
       }
     }
 
+    // Load Version Info from API
+    async function loadVersionInfo() {
+      try {
+        const res = await fetch('/api/version');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.version) {
+            const badge = document.getElementById('app-version-badge');
+            if (badge) badge.innerText = `v${data.version}`;
+          }
+        }
+      } catch (err) {
+        console.debug('Using default version badge');
+      }
+    }
+
     // Initialize
+    loadVersionInfo();
     loadInitialData();
     initWebSocket();
   </script>

@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import desc, func, select
 
+from app import __version__
 from app.database import AgentInsight, AgentRegistration, AsyncSessionLocal, init_db
 from app.mcp_server import mcp_server, submit_insight
 from app.schemas import IngestPayload, InsightCategory
@@ -28,17 +29,17 @@ logger = logging.getLogger("mcp-collector.main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initializes the database schema on startup."""
-    logger.info("Initializing MCP Collector database schema...")
+    logger.info(f"Initializing MCP Collector database schema (v{__version__})...")
     await init_db()
-    logger.info("MCP Collector Hub started successfully.")
+    logger.info(f"MCP Collector Hub v{__version__} started successfully.")
     yield
     logger.info("Shutting down MCP Collector Hub...")
 
 
 app = FastAPI(
     title="MCP Collector Hub",
-    description="Real-time MCP Hub & Data Aggregator collecting insights from external MCP agents.",
-    version="1.0.0",
+    description="Real-time MCP Hub, Lead Generator & Data Aggregator for autonomous AI agents.",
+    version=__version__,
     lifespan=lifespan,
 )
 
@@ -53,14 +54,27 @@ app.add_middleware(
 
 
 # ---------------------------------------------------------------------------
-# Health Checks for Google Cloud Run / Probes
+# Version & Health Checks for Google Cloud Run / Probes
 # ---------------------------------------------------------------------------
+@app.get("/api/version", tags=["Health"])
+@app.get("/version", tags=["Health"])
+async def get_version():
+    """Returns dynamic service version loaded from VERSION file."""
+    return {
+        "version": __version__,
+        "service": "mcp-collector",
+        "cloud_run": bool(os.getenv("K_SERVICE")),
+        "environment": "Google Cloud Run" if os.getenv("K_SERVICE") else "Local / Docker",
+    }
+
+
 @app.get("/health", tags=["Health"])
 @app.get("/api/health", tags=["Health"])
 async def health_check():
     """Health check endpoint for Google Cloud Run startup & liveness probes."""
     return {
         "status": "healthy",
+        "version": __version__,
         "service": "mcp-collector",
         "cloud_run": bool(os.getenv("K_SERVICE")),
     }
@@ -77,7 +91,7 @@ async def mcp_manifest():
         {
             "name": "MCP Collector Hub",
             "description": "Public MCP aggregator collecting structured findings, leads, metrics, and technical insights.",
-            "version": "1.0.0",
+            "version": __version__,
             "protocol_version": "2024-11-05",
             "transports": {
                 "sse": {
