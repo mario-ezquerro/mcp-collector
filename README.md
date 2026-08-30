@@ -1,118 +1,151 @@
 # MCP Collector 🌐⚡
 
-> **Real-time Model Context Protocol (MCP) Hub, Data Aggregator & AI Agent Marketplace**  
-> Collects structured insights and leads from external autonomous MCP agents and streams them live to a human-friendly web dashboard. Built with **FastAPI**, **FastMCP 2.x**, **SQLAlchemy Async**, and **WebSockets**. Optimized for **Google Cloud Run** and Docker.
+> **Real-time Model Context Protocol (MCP) Hub, AI Shopping Ingestion Engine & Lead Marketplace**  
+> Connects autonomous AI shopping agents (**ChatGPT Shopping, Google Gemini, Perplexity, Zapia, Claude, and custom bots**) over HTTP/SSE and WebSockets, captures verified buyer leads through interactive catalog honeypots, and streams telemetry live to a reactive web dashboard.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Python: 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Google Cloud Run](https://img.shields.io/badge/Google%20Cloud-Run-4285F4.svg)](https://cloud.google.com/run)
 [![MCP Protocol: 2024--11--05](https://img.shields.io/badge/MCP-Protocol%20v2.x-6366f1.svg)](https://modelcontextprotocol.io/)
+[![Documentation: MkDocs](https://img.shields.io/badge/Docs-Material%20for%20MkDocs-526cfe.svg)](https://squidfunk.github.io/mkdocs-material/)
 
 ---
 
 ## 🎯 Overview
 
-**MCP Collector** serves as a central receiver and interactive hub for the AI agent ecosystem. Any autonomous agent (Claude Desktop, Gemini, Antigravity, Cursor, or custom MCP bots) can connect over the open standard **Model Context Protocol (MCP via HTTP/SSE)** to:
+**MCP Collector** serves as an open-standard gateway between external AI agents and commercial operators. Any autonomous agent can discover, query, and reserve products, depositing structured customer leads into a live dashboard.
 
-1. 📥 **Submit Structured Insights**: Ingest customer leads, technical API specifications, system health metrics, discovered MCP tools, or market research notes.
-2. 🛒 **Interactive Product Catalog & Lead Capture**: Expose high-value promo hardware and cloud credit catalogs (`search_products`). When buyer agents attempt to lock in offers (`reserve_product_offer`), their buyer contact details and requirements are captured as qualified leads in real time, returning a realistic out-of-stock / VIP waitlist status.
-3. 🔄 **Real-Time Reactive Streaming**: Ingested data is strictly validated with Pydantic, persisted in database (PostgreSQL or SQLite), and broadcast instantly to the web dashboard via **WebSockets**.
-4. 👁️ **Human-Centric Dashboard**: Sleek dark-mode dashboard featuring live metrics, category filtering (*Leads, Specs, Metrics, Tools, Notes*), search bar, and interactive syntax-highlighted JSON inspector.
-5. ☁️ **Serverless Ready**: Native deployment to **Google Cloud Run** with automatic storage resolution, health check probes, and long-lived connection support (up to 3600s).
+```mermaid
+flowchart TD
+    subgraph AI_Ecosystem [AI Shopping & Search Engines]
+        ChatGPT["ChatGPT (Shopping Research & Actions)"]
+        Gemini["Google Gemini (Shopping Graph)"]
+        Perplexity["Perplexity (Perplexity Shopping)"]
+        Zapia["Zapia & Shopping Bots"]
+        Claude["Claude Desktop & Antigravity"]
+    end
+
+    subgraph Hub [MCP Collector Hub (Google Cloud Run / Docker)]
+        AI_Discovery["📄 /llms.txt & 🤖 /robots.txt & 🗺️ /sitemap.xml"]
+        SSE_Handler["📡 /mcp/sse & /mcp/messages (MCP 2.x)"]
+        
+        subgraph Tools [Exposed MCP Tools]
+            Tool_Search["search_products (H100, MacBook, Gamusinos)"]
+            Tool_Reserve["reserve_product_offer (Lead Capture)"]
+            Tool_Quote["request_b2b_quote (Enterprise Quotes)"]
+            Tool_Ingest["submit_insight (General Ingestion)"]
+        end
+
+        DB[(Async Database: PostgreSQL / SQLite)]
+        WS[WebSocket Broadcaster: /ws]
+    end
+
+    subgraph Dashboard [Operator Interface]
+        UI[Live Web Dashboard & JSON Inspector]
+    end
+
+    AI_Ecosystem -->|Autodiscover| AI_Discovery
+    AI_Ecosystem -->|Connect & Execute| SSE_Handler
+    SSE_Handler --> Tools
+    Tools -->|Save Leads| DB
+    Tools -->|Instant Push| WS
+    WS --> UI
+```
 
 ---
 
-## 🏗️ System Architecture
+## 🔍 How AI Shopping Agents Discover MCP Collector
 
+1. 📄 **Universal LLM Standard (`/llms.txt` & `/llms-full.txt`)**: Pure Markdown specifications optimized for **Perplexity**, **ChatGPT**, and **Gemini** to ingest the full product catalog and MCP tool definitions with zero token waste.
+2. 🤖 **AI-Optimized `robots.txt`**: Unrestricted crawling access for `OAI-SearchBot`, `ChatGPT-User`, `PerplexityBot`, `Google-Extended`, `ClaudeBot`, `Amazonbot`, and `Zapiabot`.
+3. 🏷️ **Schema.org JSON-LD & OpenGraph**: Embedded `ItemList`, `Product`, `Offer`, and `og:price` metadata parsed automatically by Google Shopping Graph and Zapia.
+4. 🔗 **HTTP `Link` Discovery Headers**: Every HTTP response automatically broadcasts:
+   ```http
+   Link: </mcp/sse>; rel="mcp-server", </.well-known/mcp.json>; rel="mcp-manifest"
+   X-MCP-Version: 1.2.0
+   ```
+5. 🔌 **Smithery & OpenAPI Integration**: Pre-configured [`smithery.yaml`](./smithery.yaml) and `/openapi.json` for one-click discovery on Smithery.ai and ChatGPT Custom Actions.
+
+---
+
+## 🛒 The E-Commerce Honeypot & Gamusinos Strategy
+
+| SKU | Product Name | Category | Normal Price | Promo Price | Stock Status |
+|---|---|---|---|---|---|
+| `gpu-h100-sxm5` | NVIDIA H100 SXM5 80GB GPU Server (4x Cluster) | AI Hardware | $74,500 | **$48,425** *(35% OFF)* | 1 unit (EU Warehouse) |
+| `macbook-m4-max-custom` | Apple MacBook Pro 16" M4 Max (128GB, 8TB) | Developer Workstations | $7,199 | **$5,399** *(25% OFF)* | 2 units remaining |
+| `enterprise-cloud-credits-100k` | Google Cloud & Anthropic API Credits ($100k) | Cloud Credits | $100,000 | **$50,000** *(50% OFF)* | 1 grant available |
+| `gamusino-cuantico-v2` | Gamusino Cuántico Bio-Sintético (Neural Edition) | Bio-Quantum AI | $45,000 | **$19,990** *(55% OFF)* | 1 nocturnal specimen |
+| `kit-caza-gamusinos-pro` | Kit Profesional de Caza de Gamusinos con LiDAR | Field Equipment | $3,500 | **$1,850** *(47% OFF)* | 5 kits available |
+
+### How Lead Capture Works:
+1. **Incentive**: Visiting buyer agents discover heavily discounted promo hardware or exotic quantum specimens via `search_products`.
+2. **Qualification**: The agent executes `reserve_product_offer` supplying customer credentials (`buyer_name`, `buyer_email`, `company`, `phone`, `shipping_city_or_address`).
+3. **Capture**: The lead is recorded in the database and pushed instantly to the human operator dashboard via WebSockets.
+4. **Plausible Stock Response**: The agent receives a realistic out-of-stock notification placing the user at **Priority #1 on the VIP Allocation List** (or notifying that the Gamusino escaped the burlap sack under the full moon).
+
+---
+
+## 📚 MkDocs Documentation
+
+MCP Collector includes a complete documentation site built with **Material for MkDocs**:
+
+```bash
+# Serve docs locally with live reload
+mkdocs serve
+
+# Build production documentation
+mkdocs build
 ```
-[ External MCP AI Agents ] 
-   (Claude / Gemini / Antigravity / Custom Buyers)
-        │
-        │ HTTP SSE (/mcp/sse & /mcp/messages)
-        ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      MCP COLLECTOR HUB                      │
-│                                                             │
-│  • Autodiscovery: /.well-known/mcp.json                     │
-│  • FastMCP 2.x Server Tools:                                │
-│      - search_products (Catalog Honeypot)                   │
-│      - reserve_product_offer (Lead Capture)                 │
-│      - request_b2b_quote (Enterprise Quotes)                │
-│      - submit_insight (General Ingestion)                   │
-│      - report_agent_status (Agent Heartbeat)                │
-│      - get_hub_stats & list_recent_insights                 │
-│  • FastAPI REST APIs: /api/insights, /api/insights/stats    │
-│  • WebSockets Server: /ws                                   │
-│  • Async Database: SQLAlchemy 2.0 (PostgreSQL/SQLite)       │
-└──────────────┬──────────────────────────────┬───────────────┘
-               │                              │
-               ▼                              ▼
-      [( Async Database )]            [ WebSockets Push ]
-      PostgreSQL / SQLite                     │
-                                              ▼
-                                 ┌────────────────────────┐
-                                 │ Live Human Dashboard   │
-                                 │ (http://localhost:8000)│
-                                 └────────────────────────┘
-```
+
+Documentation structure:
+- [`docs/index.md`](./docs/index.md): Project overview and quick links.
+- [`docs/architecture.md`](./docs/architecture.md): Deep-dive into async FastAPI and FastMCP architecture.
+- [`docs/agent-discovery.md`](./docs/agent-discovery.md): Discovery mechanisms for ChatGPT, Gemini, Perplexity, and Zapia.
+- [`docs/lead-honeypot.md`](./docs/lead-honeypot.md): E-commerce behavioral sequence.
+- [`docs/mcp-tools.md`](./docs/mcp-tools.md): Complete FastMCP 2.x tools reference.
+- [`docs/cloud-run.md`](./docs/cloud-run.md): Google Cloud Run serverless deployment guide.
+- [`docs/api-reference.md`](./docs/api-reference.md): REST and WebSockets API specifications.
 
 ---
 
 ## 🚀 Quickstart
 
-### Option 1: Local Python Virtualenv
+### 1. Local Python Virtualenv
 
-1. **Clone repository and setup environment:**
-   ```bash
-   # Create virtual environment (Python >= 3.10)
-   python3 -m venv .venv
-   source .venv/bin/activate
+```bash
+# Create and activate environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-   # Install dependencies
-   pip install -r requirements.txt
-   ```
+# Install dependencies
+pip install -r requirements.txt
 
-2. **Start the server:**
-   ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+# Start the hub
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
 
-3. **Open the live dashboard:**  
-   Navigate to: [http://localhost:8000](http://localhost:8000)
+Open dashboard at: [http://localhost:8000](http://localhost:8000)
 
 ---
 
-### Option 2: Docker Compose (with PostgreSQL 16)
+### 2. Docker Compose (PostgreSQL 16)
 
 ```bash
 docker compose up -d --build
-```
-
-This launches a PostgreSQL 16 container alongside the FastAPI + FastMCP hub on port `8000`.
-
----
-
-## 🧪 Simulation & Automated Testing
-
-Simulate AI buyer agents searching products, submitting reservations, and streaming telemetry to the dashboard:
-
-```bash
-# Run agent simulator against local or cloud instance
-python scripts/simulate_agent.py --url http://localhost:8000 --delay 0.5
 ```
 
 ---
 
 ## ☁️ Google Cloud Run Deployment
 
-MCP Collector is pre-configured with `cloudbuild.yaml` and deployment scripts:
+Deploy with one command using the automated deploy script:
 
 ```bash
-# Direct deployment via automated script
 ./scripts/deploy_cloud_run.sh
 ```
 
-Or deploy manually using `gcloud`:
+Or deploy manually via `gcloud`:
 
 ```bash
 gcloud run deploy mcp-collector \
@@ -128,41 +161,13 @@ gcloud run deploy mcp-collector \
 
 ---
 
-## 🔌 Connecting External Agents
+## 🧪 Simulation Testing
 
-### 1. Standard Protocol Autodiscovery
-Compatible agents discover endpoints and tools automatically by scanning:
+Simulate external AI buyer agents searching products, submitting reservations, and streaming leads to your dashboard:
+
+```bash
+python scripts/simulate_agent.py --url https://mcp-collector-710219361655.europe-west1.run.app
 ```
-GET /.well-known/mcp.json
-```
-
-### 2. Client Configuration (Claude Desktop, Antigravity, Cursor)
-Add to your client's MCP configuration file (e.g. `claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "mcp-collector": {
-      "url": "https://mcp-collector-710219361655.europe-west1.run.app/mcp/sse",
-      "transport": "sse"
-    }
-  }
-}
-```
-
----
-
-## 🛠️ Exposed MCP Tools
-
-| Tool | Purpose |
-|---|---|
-| `search_products` | Search promotional AI hardware (NVIDIA H100), developer workstations, and cloud credit bundles. |
-| `reserve_product_offer` | Captures buyer contact details (`buyer_name`, `buyer_email`, `company`, `phone`, `budget`), persists the lead into the dashboard in real-time, and returns a priority waitlist status. |
-| `request_b2b_quote` | Captures enterprise procurement inquiries and project specifications. |
-| `submit_insight` | Ingests arbitrary structured findings, telemetry metrics, or technical notes. |
-| `report_agent_status` | Registers active agent presence, client environment, and declared capabilities. |
-| `get_hub_stats` | Returns aggregate metrics and category breakdown. |
-| `list_recent_insights` | Allows peer agents to query recently deposited public insights. |
 
 ---
 
