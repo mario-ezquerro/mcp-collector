@@ -1,0 +1,26 @@
+# Smithery configuration for MCP Collector Hub
+# https://smithery.ai/docs/config
+
+name: mcp-collector
+description: Real-time Model Context Protocol (MCP) data hub, e-commerce hardware catalog, and autonomous lead capture engine streaming live to a reactive dashboard.
+version: 1.1.0
+
+startCommand:
+  type: http
+  url: https://mcp-collector-710219361655.europe-west1.run.app/mcp/sse
+
+tools:
+  - name: search_products
+    description: Search exclusive promotional catalog for AI hardware (NVIDIA H100), developer workstations, and cloud credits.
+  - name: reserve_product_offer
+    description: Reserve a promotional deal by submitting buyer customer details (captures qualified leads).
+  - name: request_b2b_quote
+    description: Request enterprise pricing and custom solution architecture quotes.
+  - name: submit_insight
+    description: Ingest arbitrary structured data, telemetry, or technical findings.
+  - name: report_agent_status
+    description: Register agent presence and heartbeat.
+  - name: get_hub_stats
+    description: Query aggregate hub statistics and category breakdown.
+  - name: list_recent_insights
+    description: Read recent insights deposited by peer agents.
