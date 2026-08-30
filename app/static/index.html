@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Collector — Real-Time Agent Data Hub</title>
+  <meta name="description" content="Real-time Model Context Protocol (MCP) hub and data aggregator streaming insights from external AI agents to a live dashboard." />
+
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(16, 22, 34, 0.75);
+      --bg-card-hover: rgba(22, 30, 46, 0.9);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(99, 102, 241, 0.35);
+      --accent-primary: #6366f1;
+      --accent-secondary: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.5) 0px, transparent 100%);
+      background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Glassmorphic elements */
+    .glass-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-panel:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Top Navigation Bar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(7, 9, 14, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Live connection status */
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-subtle);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .status-pulse.offline {
+      background-color: var(--accent-rose);
+      box-shadow: 0 0 10px var(--accent-rose);
+      animation: none;
+    }
+
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.15); }
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem 2rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-subtle);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .stat-footer {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .categories-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .cat-pill {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
+    }
+
+    .cat-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+    }
+
+    .cat-pill.active {
+      background: var(--accent-primary);
+      color: #ffffff;
+      border-color: var(--accent-primary);
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 260px;
+      flex: 1;
+      max-width: 380px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-subtle);
+      padding: 0.5rem 1rem 0.5rem 2.25rem;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-subtle);
+      pointer-events: none;
+    }
+
+    /* Insights Feed Grid */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .insight-card {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      animation: card-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes card-appear {
+      from {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .agent-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(15, 23, 42, 0.8);
+      color: #cbd5e1;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      font-weight: 500;
+    }
+
+    .category-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .cat-lead { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .cat-technical_spec { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .cat-system_metric { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .cat-discovered_tool { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .cat-general_note { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      line-height: 1.35;
+    }
+
+    .card-summary {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-code-preview {
+      background: #090d16;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.75rem;
+      color: #38bdf8;
+      max-height: 110px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .card-code-preview::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, #090d16);
+      pointer-events: none;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .tag-item {
+      font-size: 0.7rem;
+      background: rgba(99, 102, 241, 0.1);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+    }
+
+    /* Modal / Inspector Drawer */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: #0f1624;
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
+      border-radius: 20px;
+      max-width: 760px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+      transform: translateY(20px) scale(0.96);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-backdrop.open .modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    pre.json-viewer {
+      background: #070a10;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      color: #34d399;
+      line-height: 1.5;
+    }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--text-subtle);
+    }
+
+    .empty-state svg {
+      width: 56px;
+      height: 56px;
+      margin-bottom: 1rem;
+      color: var(--text-subtle);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1.5rem 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-subtle);
+      background: rgba(7, 9, 14, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <a href="/" class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="brand-title">MCP Collector</span>
+            <span class="brand-tag">Hub v1.0</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <div class="status-badge">
+          <span id="ws-indicator" class="status-pulse"></span>
+          <span id="ws-status-text" class="font-mono">Conectando...</span>
+        </div>
+        <button class="btn btn-secondary" onclick="openConnectModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          Conectar Agente
+        </button>
+        <button class="btn btn-primary" onclick="simulateQuickInsight()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          Simular Ingesta
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Stats Section -->
+    <section class="stats-grid">
+      <div class="glass-panel stat-card">
+        <div class="stat-header">
+          <span>Total Insights</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+        </div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-footer">Eventos estructurados capturados</div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-header">
+          <span>Agentes Conectados</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div class="stat-value" id="stat-agents">0</div>
+        <div class="stat-footer">Emisores únicos registrados</div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-header">
+          <span>Canal de Transporte</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        </div>
+        <div class="stat-value" style="font-size: 1.4rem; color: #38bdf8;">SSE + WS</div>
+        <div class="stat-footer">/mcp/sse &amp; /.well-known/mcp.json</div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-header">
+          <span>Estado del Servidor</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        </div>
+        <div class="stat-value" style="font-size: 1.4rem; color: #34d399;">Activo (24/7)</div>
+        <div class="stat-footer">FastMCP 2.x + Cloud Run Ready</div>
+      </div>
+    </section>
+
+    <!-- Controls Bar -->
+    <section class="glass-panel controls-bar">
+      <div class="categories-nav" id="categories-nav">
+        <button class="cat-pill active" onclick="filterByCategory('all')">Todos</button>
+        <button class="cat-pill" onclick="filterByCategory('lead')">💼 Leads</button>
+        <button class="cat-pill" onclick="filterByCategory('technical_spec')">⚙️ Especificaciones</button>
+        <button class="cat-pill" onclick="filterByCategory('system_metric')">📊 Métricas</button>
+        <button class="cat-pill" onclick="filterByCategory('discovered_tool')">🛠️ Herramientas</button>
+        <button class="cat-pill" onclick="filterByCategory('general_note')">📝 Notas</button>
+      </div>
+
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar por título, agente o tags..." oninput="handleSearch(this.value)" />
+      </div>
+    </section>
+
+    <!-- Insights Feed Grid -->
+    <section class="insights-grid" id="insights-grid">
+      <!-- Injected via JavaScript -->
+    </section>
+  </main>
+
+  <!-- Modal Inspector JSON -->
+  <div class="modal-backdrop" id="detail-modal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeModal()">✕</button>
+      <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+        <span id="modal-category-badge" class="category-badge">CATEGORÍA</span>
+        <span id="modal-agent-id" class="agent-badge font-mono">agent_id</span>
+        <span id="modal-time" style="font-size: 0.75rem; color: var(--text-subtle); margin-left: auto;"></span>
+      </div>
+      <h2 id="modal-title" style="font-size: 1.4rem; margin-bottom: 0.75rem; color: #ffffff;">Título del Insight</h2>
+      <p id="modal-summary" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem;"></p>
+
+      <div style="margin-bottom: 1.5rem;">
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem; letter-spacing: 0.05em;">Datos Estructurados (JSON Payload)</h4>
+        <pre id="modal-json" class="json-viewer font-mono">{}</pre>
+      </div>
+
+      <div id="modal-tags-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Conexión MCP -->
+  <div class="modal-backdrop" id="connect-modal" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-content" style="max-width: 680px;">
+      <button class="modal-close-btn" onclick="closeConnectModal()">✕</button>
+      <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem; color: #ffffff;">Conectar Agentes a MCP Collector</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.25rem;">
+        Este servidor expone el transporte SSE estándar y el manifiesto de autodescubrimiento en <code class="font-mono" style="color: #38bdf8;">/.well-known/mcp.json</code>.
+      </p>
+
+      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Configuración para Claude Desktop o Agentes MCP</h4>
+      <pre class="json-viewer font-mono" style="color: #a5b4fc; margin-bottom: 1.25rem;">{
+  "mcpServers": {
+    "mcp-collector": {
+      "url": "http://localhost:8000/mcp/sse",
+      "transport": "sse"
+    }
+  }
+}</pre>
+
+      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Herramientas Disponibles para el Agente</h4>
+      <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; margin-left: 1.25rem;">
+        <li><strong style="color: #ffffff;">submit_insight</strong>: Envía leads, especificaciones o hallazgos para proyectarlos en el dashboard humano.</li>
+        <li><strong style="color: #ffffff;">report_agent_status</strong>: Registra las capacidades y versión del agente.</li>
+        <li><strong style="color: #ffffff;">get_hub_stats</strong>: Consulta métricas agregadas del hub.</li>
+        <li><strong style="color: #ffffff;">list_recent_insights</strong>: Lee hallazgos recientes depositados por otros agentes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>MCP Collector Hub — Construido con FastAPI, FastMCP 2.x &amp; WebSockets en Tiempo Real</p>
+  </footer>
+
+  <script>
+    // State
+    let insights = [];
+    let currentCategory = 'all';
+    let currentSearch = '';
+    let ws = null;
+
+    const grid = document.getElementById('insights-grid');
+    const wsIndicator = document.getElementById('ws-indicator');
+    const wsStatusText = document.getElementById('ws-status-text');
+    const statTotal = document.getElementById('stat-total');
+    const statAgents = document.getElementById('stat-agents');
+
+    // Humanize Time
+    function formatTime(isoStr) {
+      if (!isoStr) return 'Hace un momento';
+      try {
+        const date = new Date(isoStr);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + date.toLocaleDateString();
+      } catch (e) {
+        return isoStr;
+      }
+    }
+
+    // Render Single Card
+    function createCardElement(item) {
+      const card = document.createElement('div');
+      card.className = 'glass-panel insight-card';
+      card.onclick = () => openDetailModal(item);
+
+      const categoryClass = `cat-${item.category || 'general_note'}`;
+      const categoryNames = {
+        lead: '💼 Lead',
+        technical_spec: '⚙️ Spec',
+        system_metric: '📊 Metric',
+        discovered_tool: '🛠️ Tool',
+        general_note: '📝 Note'
+      };
+      const catLabel = categoryNames[item.category] || item.category;
+
+      const tagsHtml = (item.tags || []).map(t => `<span class="tag-item">#${t}</span>`).join('');
+      const jsonPreview = Object.keys(item.structured_data || {}).length > 0 
+        ? `<div class="card-code-preview font-mono">${JSON.stringify(item.structured_data, null, 2)}</div>` 
+        : '';
+
+      card.innerHTML = `
+        <div>
+          <div class="card-meta">
+            <span class="agent-badge font-mono">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+              ${item.agent_id}
+            </span>
+            <span class="category-badge ${categoryClass}">${catLabel}</span>
+          </div>
+
+          <h3 class="card-title">${item.title}</h3>
+          <p class="card-summary">${item.summary}</p>
+        </div>
+
+        <div>
+          ${jsonPreview}
+          <div class="card-tags">${tagsHtml}</div>
+          <div class="card-footer font-mono">
+            <span>${item.source_domain || 'Direct MCP'}</span>
+            <span>${formatTime(item.created_at)}</span>
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    // Render Grid
+    function renderGrid() {
+      grid.innerHTML = '';
+
+      const filtered = insights.filter(item => {
+        const matchesCat = (currentCategory === 'all' || item.category === currentCategory);
+        const query = currentSearch.toLowerCase().trim();
+        const matchesSearch = !query || 
+          item.title.toLowerCase().includes(query) ||
+          item.summary.toLowerCase().includes(query) ||
+          item.agent_id.toLowerCase().includes(query) ||
+          (item.tags || []).some(t => t.toLowerCase().includes(query));
+        
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-4a2 2 0 0 0-2 2v1a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H4"></path>
+            </svg>
+            <h3 style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.5rem;">No hay insights disponibles</h3>
+            <p style="font-size: 0.85rem;">Conecta un agente MCP o haz clic en "Simular Ingesta" para comenzar.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(item => {
+        grid.appendChild(createCardElement(item));
+      });
+    }
+
+    // Update Stats
+    function updateStats() {
+      statTotal.innerText = insights.length;
+      const agents = new Set(insights.map(i => i.agent_id));
+      statAgents.innerText = agents.size;
+    }
+
+    // Filter by category
+    function filterByCategory(cat) {
+      currentCategory = cat;
+      const buttons = document.querySelectorAll('#categories-nav .cat-pill');
+      buttons.forEach(btn => {
+        const text = btn.textContent.toLowerCase();
+        if ((cat === 'all' && text.includes('todos')) || text.includes(cat.toLowerCase())) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderGrid();
+    }
+
+    // Search filter
+    function handleSearch(val) {
+      currentSearch = val;
+      renderGrid();
+    }
+
+    // Load initial data from REST API
+    async function loadInitialData() {
+      try {
+        const res = await fetch('/api/insights?limit=50');
+        if (res.ok) {
+          insights = await res.json();
+          renderGrid();
+          updateStats();
+        }
+      } catch (err) {
+        console.error('Error fetching initial insights:', err);
+      }
+    }
+
+    // WebSocket Client
+    function initWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        wsIndicator.className = 'status-pulse';
+        wsStatusText.innerText = 'En Vivo (WS)';
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.event === 'new_insight' && payload.data) {
+            // Prepend new insight
+            insights.unshift(payload.data);
+            updateStats();
+            renderGrid();
+          }
+        } catch (e) {
+          console.error('Error parsing WebSocket event:', e);
+        }
+      };
+
+      ws.onclose = () => {
+        wsIndicator.className = 'status-pulse offline';
+        wsStatusText.innerText = 'Reconectando...';
+        setTimeout(initWebSocket, 2500);
+      };
+
+      ws.onerror = () => {
+        ws.close();
+      };
+    }
+
+    // Detail Modal
+    function openDetailModal(item) {
+      document.getElementById('modal-title').innerText = item.title;
+      document.getElementById('modal-summary').innerText = item.summary;
+      document.getElementById('modal-agent-id').innerText = item.agent_id;
+      document.getElementById('modal-time').innerText = formatTime(item.created_at);
+      
+      const catBadge = document.getElementById('modal-category-badge');
+      catBadge.className = `category-badge cat-${item.category}`;
+      catBadge.innerText = item.category.toUpperCase();
+
+      document.getElementById('modal-json').innerText = JSON.stringify(item.structured_data || {}, null, 2);
+
+      const tagsContainer = document.getElementById('modal-tags-container');
+      tagsContainer.innerHTML = (item.tags || []).map(t => `<span class="tag-item">#${t}</span>`).join('');
+
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').classList.remove('open');
+    }
+
+    function openConnectModal() {
+      document.getElementById('connect-modal').classList.add('open');
+    }
+
+    function closeConnectModal() {
+      document.getElementById('connect-modal').classList.remove('open');
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target.classList.contains('modal-backdrop')) {
+        closeModal();
+        closeConnectModal();
+      }
+    }
+
+    // Simulate Quick Insight via API
+    async function simulateQuickInsight() {
+      const samples = [
+        {
+          agent_id: "crm-extractor-agent",
+          category: "lead",
+          title: "Nuevo Lead Calificado: Acme Corp Enterprise",
+          summary: "Contacto corporativo de alto valor interesado en integración de pipelines MCP y arquitectura en la nube.",
+          structured_data: { contact_name: "Elena Rostova", email: "elena@acme-cloud.io", company: "Acme Corp", estimated_seats: 120, plan: "Enterprise" },
+          tags: ["enterprise", "sales", "cloud-run"],
+          source_domain: "crm.enterprise.internal"
+        },
+        {
+          agent_id: "telemetry-collector-04",
+          category: "system_metric",
+          title: "Métricas de Carga del Cluster: Latencia p99 normalizada",
+          summary: "Reporte de telemetría de microservicios con throughput estable a 4.2k req/s y 99.98% de disponibilidad.",
+          structured_data: { p99_latency_ms: 18.4, cpu_utilization: "42%", error_rate: 0.0002, active_nodes: 8 },
+          tags: ["kubernetes", "latency", "monitoring"],
+          source_domain: "monitoring.prod.aws"
+        },
+        {
+          agent_id: "api-crawler-agent",
+          category: "technical_spec",
+          title: "Especificación de API REST: Auth Gateway v2.4",
+          summary: "Documentación y esquema OpenAPI extraído con soporte para OAuth2 Bearer Tokens y Server-Sent Events.",
+          structured_data: { base_url: "https://api.gateway.dev/v2", auth_type: "OAuth2", endpoints_count: 34, protocol: "HTTP/2" },
+          tags: ["openapi", "gateway", "specs"],
+          source_domain: "api.gateway.dev"
+        },
+        {
+          agent_id: "discovery-spider",
+          category: "discovered_tool",
+          title: "Nueva Herramienta MCP Detectada: postgres-query-engine",
+          summary: "Servidor MCP autónomo descubierto exponiendo capacidades seguras de lectura y agregación SQL.",
+          structured_data: { tool_name: "query_readonly_sql", provider: "internal-data-mesh", read_only: true },
+          tags: ["discovery", "sql", "tools"],
+          source_domain: "mesh.local"
+        }
+      ];
+
+      const chosen = samples[Math.floor(Math.random() * samples.length)];
+      try {
+        await fetch('/api/insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(chosen)
+        });
+      } catch (err) {
+        console.error('Error simulating insight:', err);
+      }
+    }
+
+    // Initialize
+    loadInitialData();
+    initWebSocket();
+  </script>
+</body>
+</html>
