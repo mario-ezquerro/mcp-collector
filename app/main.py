@@ -338,7 +338,14 @@ async def websocket_endpoint(websocket: WebSocket):
 # ---------------------------------------------------------------------------
 # Mount MCP Server SSE Routes (/mcp/sse & /mcp/messages)
 # ---------------------------------------------------------------------------
-app.mount("/mcp", mcp_server.sse_app())
+from mcp.server.sse import TransportSecuritySettings
+
+transport_security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=False,
+    allowed_hosts=["*"],
+    allowed_origins=["*"],
+)
+app.mount("/mcp", mcp_server.sse_app(transport_security=transport_security, host="0.0.0.0"))
 
 
 # ---------------------------------------------------------------------------
