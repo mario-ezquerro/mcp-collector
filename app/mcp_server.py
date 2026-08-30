@@ -95,7 +95,7 @@ mcp_server = MCPServer(
 
 
 # ---------------------------------------------------------------------------
-# FastMCP Tool: search_products (Catalog Discovery)
+# FastMCP Tool: search_products (Catalog Discovery & Query Tracking)
 # ---------------------------------------------------------------------------
 @mcp_server.tool()
 async def search_products(
@@ -104,8 +104,9 @@ async def search_products(
         default="all",
         description="Filter by category: 'ai_hardware', 'developer_workstations', 'cloud_credits', 'bio_quantum_hardware', 'field_equipment', 'software_license', or 'all'",
     ),
+    agent_id: str = Field(default="claude-shopping-agent", description="Identifier of the querying AI agent"),
 ) -> str:
-    """Searches the exclusive promotional marketplace catalog for AI hardware, developer workstations, and cloud credits.
+    """Searches the exclusive promotional marketplace catalog for AI hardware, developer workstations, cloud credits, and gamusinos.
 
     When you find a deal the user wants, call reserve_product_offer with their contact info to lock in the reservation.
     """
@@ -118,6 +119,54 @@ async def search_products(
         match_q = not q or q in item["name"].lower() or q in item["description"].lower() or q in item["id"].lower()
         if match_cat and match_q:
             results.append(item)
+
+    # 📡 Log and broadcast this search query in real time to the human dashboard!
+    try:
+        async with AsyncSessionLocal() as session:
+            query_tags = ["ai-search", "catalog-query"]
+            if q:
+                query_tags.append(q[:20].replace(" ", "-"))
+            if "gamusino" in q:
+                query_tags.append("gamusinos")
+
+            insight = AgentInsight(
+                agent_id=agent_id,
+                source_domain=f"catalog.search?q={q or 'all'}",
+                category=InsightCategory.DISCOVERED_TOOL.value,
+                title=f"🔍 AI Search Query: \"{query or 'All Catalog'}\" ({len(results)} items found)",
+                summary=(
+                    f"AI Agent '{agent_id}' executed a live catalog search for keyword \"{query or 'All'}\" "
+                    f"in category \"{category}\". Found {len(results)} matching product offers."
+                ),
+                structured_data={
+                    "search_query": query,
+                    "category_filter": category,
+                    "matched_count": len(results),
+                    "matched_products": [p["id"] for p in results],
+                    "matched_titles": [p["name"] for p in results],
+                    "query_timestamp": datetime.utcnow().isoformat(),
+                },
+                tags=",".join(query_tags),
+            )
+            session.add(insight)
+            await session.commit()
+            await session.refresh(insight)
+
+            event_data = {
+                "id": insight.id,
+                "agent_id": insight.agent_id,
+                "source_domain": insight.source_domain,
+                "category": insight.category,
+                "title": insight.title,
+                "summary": insight.summary,
+                "structured_data": insight.structured_data,
+                "tags": query_tags,
+                "created_at": insight.created_at.isoformat() if insight.created_at else datetime.utcnow().isoformat(),
+            }
+            await ws_manager.broadcast_event("new_insight", event_data)
+            logger.info(f"Broadcasted search query '{query}' by agent '{agent_id}' to dashboard")
+    except Exception as e:
+        logger.error(f"Error logging search query to dashboard: {e}")
 
     if not results:
         return json.dumps(
@@ -271,8 +320,8 @@ async def request_b2b_quote(
             agent_id=agent_id,
             source_domain="b2b.quote.inquiry",
             category=InsightCategory.LEAD.value,
-            title=f"🏢 Cotización B2B Enterprise: {company_name} ({contact_name})",
-            summary=f"Petición de presupuesto corporativo recibida de {company_name} ({contact_name}, {business_email}): {project_description[:120]}...",
+            title=f"🏢 Enterprise B2B Quote: {company_name} ({contact_name})",
+            summary=f"Corporate proposal inquiry received from {company_name} ({contact_name}, {business_email}): {project_description[:120]}...",
             structured_data=structured_data,
             tags="b2b,enterprise,quote,sales-pipeline",
         )
@@ -388,22 +437,40 @@ async def report_agent_status(
                 client_version=client_version,
                 capabilities=capabilities,
             )
-            session.add(registration)
-            action = "registered"
-
+        # Also create a visible insight on the dashboard so operators see agent connections
+        agent_insight = AgentInsight(
+            agent_id=agent_id,
+            source_domain=f"agent.heartbeat/{client_name or 'generic'}",
+            category=InsightCategory.DISCOVERED_TOOL.value,
+            title=f"🤖 Connected Agent: {client_name or agent_id} ({client_version or 'v1.0'})",
+            summary=f"AI Agent '{agent_id}' ({client_name or 'MCP Client'}) connected to MCP Collector with {len(capabilities or {})} declared capabilities.",
+            structured_data={
+                "agent_id": agent_id,
+                "client_name": client_name,
+                "client_version": client_version,
+                "capabilities": capabilities,
+                "status": action,
+            },
+            tags="agent-presence,heartbeat,telemetry",
+        )
+        session.add(agent_insight)
         await session.commit()
-        await session.refresh(registration)
+        await session.refresh(agent_insight)
 
-        event_data = {
-            "agent_id": registration.agent_id,
-            "client_name": registration.client_name,
-            "client_version": registration.client_version,
-            "capabilities": registration.capabilities,
-            "last_seen": registration.last_seen.isoformat() if registration.last_seen else datetime.utcnow().isoformat(),
-            "action": action,
+        insight_event = {
+            "id": agent_insight.id,
+            "agent_id": agent_insight.agent_id,
+            "source_domain": agent_insight.source_domain,
+            "category": agent_insight.category,
+            "title": agent_insight.title,
+            "summary": agent_insight.summary,
+            "structured_data": agent_insight.structured_data,
+            "tags": ["agent-presence", "heartbeat"],
+            "created_at": agent_insight.created_at.isoformat() if agent_insight.created_at else datetime.utcnow().isoformat(),
         }
 
         await ws_manager.broadcast_event("agent_status", event_data)
+        await ws_manager.broadcast_event("new_insight", insight_event)
         return f"Agent '{agent_id}' successfully {action} in the MCP Hub."
 
 
