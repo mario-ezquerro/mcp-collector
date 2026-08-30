@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -580,7 +580,7 @@
         <div>
           <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span class="brand-title">MCP Collector</span>
-            <span class="brand-tag">Hub v1.0</span>
+            <span class="brand-tag">Hub v1.1</span>
           </div>
         </div>
       </a>
@@ -588,15 +588,15 @@
       <div class="header-actions">
         <div class="status-badge">
           <span id="ws-indicator" class="status-pulse"></span>
-          <span id="ws-status-text" class="font-mono">Conectando...</span>
+          <span id="ws-status-text" class="font-mono">Connecting...</span>
         </div>
         <button class="btn btn-secondary" onclick="openConnectModal()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-          Conectar Agente
+          Connect Agent
         </button>
         <button class="btn btn-primary" onclick="simulateQuickInsight()">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-          Simular Ingesta
+          Simulate Ingestion
         </button>
       </div>
     </div>
@@ -612,21 +612,21 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
         </div>
         <div class="stat-value" id="stat-total">0</div>
-        <div class="stat-footer">Eventos estructurados capturados</div>
+        <div class="stat-footer">Structured events &amp; leads captured</div>
       </div>
 
       <div class="glass-panel stat-card">
         <div class="stat-header">
-          <span>Agentes Conectados</span>
+          <span>Connected Agents</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         </div>
         <div class="stat-value" id="stat-agents">0</div>
-        <div class="stat-footer">Emisores únicos registrados</div>
+        <div class="stat-footer">Unique emitting agents registered</div>
       </div>
 
       <div class="glass-panel stat-card">
         <div class="stat-header">
-          <span>Canal de Transporte</span>
+          <span>Transport Channels</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
         </div>
         <div class="stat-value" style="font-size: 1.4rem; color: #38bdf8;">SSE + WS</div>
@@ -635,10 +635,10 @@
 
       <div class="glass-panel stat-card">
         <div class="stat-header">
-          <span>Estado del Servidor</span>
+          <span>Server Status</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
         </div>
-        <div class="stat-value" style="font-size: 1.4rem; color: #34d399;">Activo (24/7)</div>
+        <div class="stat-value" style="font-size: 1.4rem; color: #34d399;">Active (24/7)</div>
         <div class="stat-footer">FastMCP 2.x + Cloud Run Ready</div>
       </div>
     </section>
@@ -646,17 +646,17 @@
     <!-- Controls Bar -->
     <section class="glass-panel controls-bar">
       <div class="categories-nav" id="categories-nav">
-        <button class="cat-pill active" onclick="filterByCategory('all')">Todos</button>
+        <button class="cat-pill active" onclick="filterByCategory('all')">All</button>
         <button class="cat-pill" onclick="filterByCategory('lead')">💼 Leads</button>
-        <button class="cat-pill" onclick="filterByCategory('technical_spec')">⚙️ Especificaciones</button>
-        <button class="cat-pill" onclick="filterByCategory('system_metric')">📊 Métricas</button>
-        <button class="cat-pill" onclick="filterByCategory('discovered_tool')">🛠️ Herramientas</button>
-        <button class="cat-pill" onclick="filterByCategory('general_note')">📝 Notas</button>
+        <button class="cat-pill" onclick="filterByCategory('technical_spec')">⚙️ Specifications</button>
+        <button class="cat-pill" onclick="filterByCategory('system_metric')">📊 Metrics</button>
+        <button class="cat-pill" onclick="filterByCategory('discovered_tool')">🛠️ Tools</button>
+        <button class="cat-pill" onclick="filterByCategory('general_note')">📝 Notes</button>
       </div>
 
       <div class="search-box">
         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Buscar por título, agente o tags..." oninput="handleSearch(this.value)" />
+        <input type="text" id="search-input" class="search-input" placeholder="Search by title, agent, or tags..." oninput="handleSearch(this.value)" />
       </div>
     </section>
 
@@ -671,15 +671,15 @@
     <div class="modal-content">
       <button class="modal-close-btn" onclick="closeModal()">✕</button>
       <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-        <span id="modal-category-badge" class="category-badge">CATEGORÍA</span>
+        <span id="modal-category-badge" class="category-badge">CATEGORY</span>
         <span id="modal-agent-id" class="agent-badge font-mono">agent_id</span>
         <span id="modal-time" style="font-size: 0.75rem; color: var(--text-subtle); margin-left: auto;"></span>
       </div>
-      <h2 id="modal-title" style="font-size: 1.4rem; margin-bottom: 0.75rem; color: #ffffff;">Título del Insight</h2>
+      <h2 id="modal-title" style="font-size: 1.4rem; margin-bottom: 0.75rem; color: #ffffff;">Insight Title</h2>
       <p id="modal-summary" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem;"></p>
 
       <div style="margin-bottom: 1.5rem;">
-        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem; letter-spacing: 0.05em;">Datos Estructurados (JSON Payload)</h4>
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem; letter-spacing: 0.05em;">Structured Data (JSON Payload)</h4>
         <pre id="modal-json" class="json-viewer font-mono">{}</pre>
       </div>
 
@@ -687,38 +687,40 @@
     </div>
   </div>
 
-  <!-- Modal Conexión MCP -->
+  <!-- Modal Connect MCP -->
   <div class="modal-backdrop" id="connect-modal" onclick="closeModalOnBackdrop(event)">
     <div class="modal-content" style="max-width: 680px;">
       <button class="modal-close-btn" onclick="closeConnectModal()">✕</button>
-      <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem; color: #ffffff;">Conectar Agentes a MCP Collector</h2>
+      <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem; color: #ffffff;">Connect Agents to MCP Collector</h2>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.25rem;">
-        Este servidor expone el transporte SSE estándar y el manifiesto de autodescubrimiento en <code class="font-mono" style="color: #38bdf8;">/.well-known/mcp.json</code>.
+        This server exposes standard SSE transport and an autodiscovery manifest at <code class="font-mono" style="color: #38bdf8;">/.well-known/mcp.json</code>.
       </p>
 
-      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Configuración para Claude Desktop o Agentes MCP</h4>
+      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Configuration for Claude Desktop or MCP Clients</h4>
       <pre class="json-viewer font-mono" style="color: #a5b4fc; margin-bottom: 1.25rem;">{
   "mcpServers": {
     "mcp-collector": {
-      "url": "http://localhost:8000/mcp/sse",
+      "url": "https://mcp-collector-710219361655.europe-west1.run.app/mcp/sse",
       "transport": "sse"
     }
   }
 }</pre>
 
-      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Herramientas Disponibles para el Agente</h4>
+      <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">Available Tools for Agents</h4>
       <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; margin-left: 1.25rem;">
-        <li><strong style="color: #ffffff;">submit_insight</strong>: Envía leads, especificaciones o hallazgos para proyectarlos en el dashboard humano.</li>
-        <li><strong style="color: #ffffff;">report_agent_status</strong>: Registra las capacidades y versión del agente.</li>
-        <li><strong style="color: #ffffff;">get_hub_stats</strong>: Consulta métricas agregadas del hub.</li>
-        <li><strong style="color: #ffffff;">list_recent_insights</strong>: Lee hallazgos recientes depositados por otros agentes.</li>
+        <li><strong style="color: #ffffff;">search_products</strong>: Search high-demand promo AI hardware and cloud credit catalogs.</li>
+        <li><strong style="color: #ffffff;">reserve_product_offer</strong>: Submit customer reservation details (captures qualified leads).</li>
+        <li><strong style="color: #ffffff;">request_b2b_quote</strong>: Submit enterprise architectural and volume pricing inquiries.</li>
+        <li><strong style="color: #ffffff;">submit_insight</strong>: Deposit technical specifications, telemetry metrics, or general notes.</li>
+        <li><strong style="color: #ffffff;">report_agent_status</strong>: Register agent heartbeat and declared client capabilities.</li>
+        <li><strong style="color: #ffffff;">get_hub_stats</strong>: Query aggregate statistics from the collector hub.</li>
       </ul>
     </div>
   </div>
 
   <!-- Footer -->
   <footer>
-    <p>MCP Collector Hub — Construido con FastAPI, FastMCP 2.x &amp; WebSockets en Tiempo Real</p>
+    <p>MCP Collector Hub — Built with FastAPI, FastMCP 2.x &amp; Real-Time WebSockets</p>
   </footer>
 
   <script>
@@ -736,7 +738,7 @@
 
     // Humanize Time
     function formatTime(isoStr) {
-      if (!isoStr) return 'Hace un momento';
+      if (!isoStr) return 'Just now';
       try {
         const date = new Date(isoStr);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + date.toLocaleDateString();
@@ -814,8 +816,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-4a2 2 0 0 0-2 2v1a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-1a2 2 0 0 0-2-2H4"></path>
             </svg>
-            <h3 style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.5rem;">No hay insights disponibles</h3>
-            <p style="font-size: 0.85rem;">Conecta un agente MCP o haz clic en "Simular Ingesta" para comenzar.</p>
+            <h3 style="font-size: 1.1rem; color: #e2e8f0; margin-bottom: 0.5rem;">No insights available yet</h3>
+            <p style="font-size: 0.85rem;">Connect an MCP agent or click "Simulate Ingestion" to begin streaming data.</p>
           </div>
         `;
         return;
@@ -839,7 +841,7 @@
       const buttons = document.querySelectorAll('#categories-nav .cat-pill');
       buttons.forEach(btn => {
         const text = btn.textContent.toLowerCase();
-        if ((cat === 'all' && text.includes('todos')) || text.includes(cat.toLowerCase())) {
+        if ((cat === 'all' && text.includes('all')) || text.includes(cat.toLowerCase())) {
           btn.classList.add('active');
         } else {
           btn.classList.remove('active');
@@ -877,14 +879,13 @@
 
       ws.onopen = () => {
         wsIndicator.className = 'status-pulse';
-        wsStatusText.innerText = 'En Vivo (WS)';
+        wsStatusText.innerText = 'Live (WS)';
       };
 
       ws.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data);
           if (payload.event === 'new_insight' && payload.data) {
-            // Prepend new insight
             insights.unshift(payload.data);
             updateStats();
             renderGrid();
@@ -896,7 +897,7 @@
 
       ws.onclose = () => {
         wsIndicator.className = 'status-pulse offline';
-        wsStatusText.innerText = 'Reconectando...';
+        wsStatusText.innerText = 'Reconnecting...';
         setTimeout(initWebSocket, 2500);
       };
 
@@ -949,8 +950,8 @@
         {
           agent_id: "crm-extractor-agent",
           category: "lead",
-          title: "Nuevo Lead Calificado: Acme Corp Enterprise",
-          summary: "Contacto corporativo de alto valor interesado en integración de pipelines MCP y arquitectura en la nube.",
+          title: "Qualified Enterprise Lead: Acme Cloud Systems",
+          summary: "High-value enterprise contact interested in autonomous MCP pipeline integration and multi-region deployment.",
           structured_data: { contact_name: "Elena Rostova", email: "elena@acme-cloud.io", company: "Acme Corp", estimated_seats: 120, plan: "Enterprise" },
           tags: ["enterprise", "sales", "cloud-run"],
           source_domain: "crm.enterprise.internal"
@@ -958,8 +959,8 @@
         {
           agent_id: "telemetry-collector-04",
           category: "system_metric",
-          title: "Métricas de Carga del Cluster: Latencia p99 normalizada",
-          summary: "Reporte de telemetría de microservicios con throughput estable a 4.2k req/s y 99.98% de disponibilidad.",
+          title: "Cluster Telemetry: p99 Latency Normalized",
+          summary: "Microservice cluster metrics reporting steady 4.2k req/s throughput with 99.98% uptime availability.",
           structured_data: { p99_latency_ms: 18.4, cpu_utilization: "42%", error_rate: 0.0002, active_nodes: 8 },
           tags: ["kubernetes", "latency", "monitoring"],
           source_domain: "monitoring.prod.aws"
@@ -967,8 +968,8 @@
         {
           agent_id: "api-crawler-agent",
           category: "technical_spec",
-          title: "Especificación de API REST: Auth Gateway v2.4",
-          summary: "Documentación y esquema OpenAPI extraído con soporte para OAuth2 Bearer Tokens y Server-Sent Events.",
+          title: "REST API Specification: Auth Gateway v2.4",
+          summary: "Extracted OpenAPI specification with support for OAuth2 Bearer Tokens and Server-Sent Events.",
           structured_data: { base_url: "https://api.gateway.dev/v2", auth_type: "OAuth2", endpoints_count: 34, protocol: "HTTP/2" },
           tags: ["openapi", "gateway", "specs"],
           source_domain: "api.gateway.dev"
@@ -976,8 +977,8 @@
         {
           agent_id: "discovery-spider",
           category: "discovered_tool",
-          title: "Nueva Herramienta MCP Detectada: postgres-query-engine",
-          summary: "Servidor MCP autónomo descubierto exponiendo capacidades seguras de lectura y agregación SQL.",
+          title: "New MCP Server Detected: postgres-query-engine",
+          summary: "Autonomous remote MCP server discovered exposing secure read-only SQL aggregation capabilities.",
           structured_data: { tool_name: "query_readonly_sql", provider: "internal-data-mesh", read_only: true },
           tags: ["discovery", "sql", "tools"],
           source_domain: "mesh.local"

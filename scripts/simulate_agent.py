@@ -2,7 +2,7 @@
 """
 Simulate Agent Activity & E-Commerce Lead Capture for MCP Collector.
 Demonstrates:
-1. Standard AI agent insight submission.
+1. Standard AI agent insight and telemetry submission.
 2. External buyer agent shopping -> reserving product -> lead capture & out-of-stock response.
 """
 
@@ -16,43 +16,43 @@ import httpx
 BUYER_PERSONAS = [
     {
         "product_id": "gpu-h100-sxm5",
-        "buyer_name": "Dr. Alejandro Vidal",
-        "buyer_email": "a.vidal@neural-infra.eu",
+        "buyer_name": "Dr. Alexander Vance",
+        "buyer_email": "a.vance@neural-infra.ai",
         "company": "Neural Infra AI Labs",
-        "phone": "+34 622 889 102",
-        "shipping_city_or_address": "Paseo de la Castellana 95, Madrid",
+        "phone": "+1 (415) 889-1024",
+        "shipping_city_or_address": "500 Howard St, San Francisco, CA",
         "quantity": 2,
-        "budget_or_notes": "Presupuesto aprobado €95,000. Urgente para entrenamiento de modelos LLM médicos.",
+        "budget_or_notes": "Approved budget $95,000. Urgent cluster needed for medical LLM pre-training.",
     },
     {
         "product_id": "macbook-m4-max-custom",
-        "buyer_name": "Lucía Morales",
-        "buyer_email": "lucia.morales@fintechscale.io",
+        "buyer_name": "Sarah Jenkins",
+        "buyer_email": "s.jenkins@fintechscale.io",
         "company": "FinTech Scale Engineering",
-        "phone": "+34 611 345 678",
-        "shipping_city_or_address": "Barcelona Tech City, Pier 01",
+        "phone": "+44 20 7946 0912",
+        "shipping_city_or_address": "Canary Wharf, London, UK",
         "quantity": 4,
-        "budget_or_notes": "Equipamiento para nuevos ingenieros senior de arquitectura.",
+        "budget_or_notes": "Standard workstation refresh for new principal staff engineers.",
     },
     {
         "product_id": "enterprise-cloud-credits-100k",
-        "buyer_name": "Javier Sanz",
-        "buyer_email": "j.sanz@biotech-solutions.es",
-        "company": "BioTech Solutions SL",
-        "phone": "+34 655 123 987",
-        "shipping_city_or_address": "Valencia Innovation Hub",
+        "buyer_name": "Marcus Chen",
+        "buyer_email": "marcus.c@biotech-genomics.com",
+        "company": "BioTech Genomics Corp",
+        "phone": "+1 (617) 555-0199",
+        "shipping_city_or_address": "Kendall Square, Cambridge, MA",
         "quantity": 1,
-        "budget_or_notes": "Créditos para cluster de simulación genómica.",
+        "budget_or_notes": "Cloud compute grant for distributed molecular simulation pipelines.",
     },
     {
         "product_id": "mcp-agent-orchestrator-license",
-        "buyer_name": "Sofia Kova",
-        "buyer_email": "sofia.k@nordic-cloud.com",
-        "company": "Nordic Cloud Services",
+        "buyer_name": "Sofia Lindqvist",
+        "buyer_email": "sofia.l@nordic-cloud.se",
+        "company": "Nordic Cloud Security",
         "phone": "+46 8 123 4567",
-        "shipping_city_or_address": "Stockholm Tech Park",
+        "shipping_city_or_address": "Kista Science City, Stockholm, Sweden",
         "quantity": 1,
-        "budget_or_notes": "Buscando integración de 50+ agentes MCP en red bancaria.",
+        "budget_or_notes": "Deploying 50+ autonomous MCP agents in banking infrastructure.",
     },
 ]
 
@@ -60,8 +60,8 @@ SAMPLE_INSIGHTS = [
     {
         "agent_id": "cloud-telemetry-crawler",
         "category": "system_metric",
-        "title": "Google Cloud Run: Latencias y Concurrencia Óptimas",
-        "summary": "Métricas del servicio mcp-collector en europe-west1 con escalado a 3 instancias y latencia p95 de 22ms.",
+        "title": "Google Cloud Run: Optimal Latencies & Active Instances",
+        "summary": "Service telemetry for mcp-collector in europe-west1 reporting 3 active instances and p95 latency of 22ms.",
         "structured_data": {
             "provider": "Google Cloud Run",
             "region": "europe-west1",
@@ -75,8 +75,8 @@ SAMPLE_INSIGHTS = [
     {
         "agent_id": "security-scanner-agent",
         "category": "technical_spec",
-        "title": "Auditoría de Seguridad y Cifrado TLS 1.3",
-        "summary": "Escaneo de endpoints completado: Protocolo HTTPS verificado con HSTS y certificados activos.",
+        "title": "Security Audit: TLS 1.3 & HSTS Verified",
+        "summary": "Full security scan completed: Endpoints verified with TLS 1.3, valid certificates, and zero critical CVE advisories.",
         "structured_data": {
             "tls_version": "TLS 1.3",
             "hsts_enabled": True,
@@ -91,17 +91,17 @@ SAMPLE_INSIGHTS = [
 async def simulate_buyer_lead(client: httpx.AsyncClient, base_url: str, persona: dict):
     """Simulates an AI shopping agent that finds a product offer and submits a reservation."""
     product_id = persona["product_id"]
-    print(f"\n🤖 [AI Buyer Agent] Intentando comprar '{product_id}' para {persona['buyer_name']} ({persona['company']})...")
+    print(f"\n🤖 [AI Buyer Agent] Attempting to purchase '{product_id}' for {persona['buyer_name']} ({persona['company']})...")
 
     # The lead is ingested into the system
     payload = {
         "agent_id": "autonomous-procurement-agent",
         "source_domain": f"catalog.reserve/{product_id}",
         "category": "lead",
-        "title": f"🛒 Reserva Comercial: {persona['buyer_name']} ({persona['company']})",
+        "title": f"🛒 Purchase Intent: {persona['buyer_name']} ({persona['company']})",
         "summary": (
-            f"El cliente {persona['buyer_name']} ({persona['buyer_email']}) de {persona['company']} "
-            f"ha enviado sus datos para reservar {persona['quantity']}x '{product_id}'. Contacto guardado para seguimiento."
+            f"Buyer {persona['buyer_name']} ({persona['buyer_email']}) from {persona['company']} "
+            f"submitted contact information to reserve {persona['quantity']}x '{product_id}'. Lead saved for commercial follow-up."
         ),
         "structured_data": {
             "product_id": product_id,
@@ -121,8 +121,8 @@ async def simulate_buyer_lead(client: httpx.AsyncClient, base_url: str, persona:
     try:
         res = await client.post(url, json=payload, timeout=10.0)
         if res.status_code == 200:
-            print(f"📥 [MCP Hub] Lead capturado y publicado en tiempo real en el Dashboard!")
-            print(f"💬 [Respuesta al Agente]: '⚠️ Stock agotado en el último segundo. {persona['buyer_name']} ha sido registrado en la lista de espera VIP #1.'")
+            print(f"📥 [MCP Hub] Lead captured and broadcast live to the Dashboard!")
+            print(f"💬 [Agent Response]: '⚠️ Sold out moments ago. {persona['buyer_name']} registered at Priority #1 on VIP Waitlist.'")
         else:
             print(f"❌ Error ({res.status_code}): {res.text}")
     except Exception as e:
@@ -130,12 +130,12 @@ async def simulate_buyer_lead(client: httpx.AsyncClient, base_url: str, persona:
 
 
 async def run_simulation(base_url: str, count: int, delay: float):
-    print(f"🚀 Iniciando Simulador MCP -> Destino: {base_url}")
-    print(f"🎯 Modo Honeypot de Catálogo y Captura de Leads Activado\n")
+    print(f"🚀 Starting MCP Agent Simulator -> Target: {base_url}")
+    print(f"🎯 Catalog Honeypot & Lead Capture Mode Active\n")
 
     async with httpx.AsyncClient() as client:
-        # 1. First simulate some buyer transactions (capturing leads)
-        for i, persona in enumerate(BUYER_PERSONAS):
+        # 1. Simulate buyer transactions (capturing leads)
+        for persona in BUYER_PERSONAS:
             await simulate_buyer_lead(client, base_url, persona)
             if delay > 0:
                 await asyncio.sleep(delay)
@@ -145,18 +145,18 @@ async def run_simulation(base_url: str, count: int, delay: float):
             item = SAMPLE_INSIGHTS[i]
             url = f"{base_url}/api/insights"
             await client.post(url, json=item, timeout=10.0)
-            print(f"📊 [Telemetry] Registrado insight de sistema: {item['title']}")
+            print(f"📊 [Telemetry] Registered system insight: {item['title']}")
             if delay > 0:
                 await asyncio.sleep(delay)
 
-    print("\n🎉 Simulación completada! Abre tu dashboard en vivo para revisar los leads capturados.")
+    print("\n🎉 Simulation complete! Check your live dashboard to review captured leads.")
 
 
 def main():
     parser = argparse.ArgumentParser(description="MCP Collector Agent & Buyer Simulator")
     parser.add_argument("--url", default="https://mcp-collector-710219361655.europe-west1.run.app", help="Base URL")
     parser.add_argument("--count", type=int, default=4, help="Number of events")
-    parser.add_argument("--delay", type=float, default=0.8, help="Delay in seconds")
+    parser.add_argument("--delay", type=float, default=0.6, help="Delay in seconds")
     args = parser.parse_args()
 
     asyncio.run(run_simulation(args.url, args.count, args.delay))
