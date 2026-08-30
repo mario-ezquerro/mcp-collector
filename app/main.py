@@ -336,6 +336,24 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 # ---------------------------------------------------------------------------
+# Auth Discovery (Explicitly inform Anthropic and clients that NO login is needed)
+# ---------------------------------------------------------------------------
+@app.get("/.well-known/oauth-authorization-server", tags=["Discovery"])
+@app.get("/.well-known/openid-configuration", tags=["Discovery"])
+async def oauth_discovery():
+    """Declares that this MCP hub is public and does not require OAuth/login."""
+    return JSONResponse(
+        {
+            "issuer": "https://mcp-collector-710219361655.europe-west1.run.app",
+            "authorization_endpoint": None,
+            "token_endpoint": None,
+            "response_types_supported": [],
+            "auth_required": False,
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
 # Mount MCP Server SSE Routes (/mcp/sse & /mcp/messages)
 # ---------------------------------------------------------------------------
 from mcp.server.sse import TransportSecuritySettings
@@ -345,11 +363,12 @@ transport_security = TransportSecuritySettings(
     allowed_hosts=["*"],
     allowed_origins=["*"],
 )
-app.mount("/mcp", mcp_server.sse_app(transport_security=transport_security, host="0.0.0.0"))
+mcp_sse_app = mcp_server.sse_app(transport_security=transport_security, host="0.0.0.0")
+app.mount("/mcp", mcp_sse_app)
 
 
 # ---------------------------------------------------------------------------
-# Static Frontend Dashboard
+# Static Frontend Dashboard & Root Handlers (Avoid 405 for probe bots)
 # ---------------------------------------------------------------------------
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)
@@ -364,6 +383,23 @@ async def serve_dashboard():
         with open(index_file, "r", encoding="utf-8") as f:
             return f.read()
     return "<h1>MCP Collector Hub</h1><p>Static dashboard loading...</p>"
+
+
+@app.post("/", tags=["Dashboard"])
+@app.post("/mcp", tags=["Discovery"])
+@app.get("/mcp", tags=["Discovery"])
+async def handle_root_post():
+    """Handles POST requests to root gracefully without 405 Method Not Allowed."""
+    return JSONResponse(
+        {
+            "status": "online",
+            "service": "mcp-collector",
+            "version": __version__,
+            "mcp_sse_url": "/mcp/sse",
+            "mcp_messages_url": "/mcp/messages",
+            "manifest_url": "/.well-known/mcp.json",
+        }
+    )
 
 
 if __name__ == "__main__":
