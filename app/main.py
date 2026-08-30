@@ -90,6 +90,49 @@ async def health_check():
 
 
 # ---------------------------------------------------------------------------
+# AI Search & Crawler Discovery Endpoints (ChatGPT, Perplexity, Gemini, Zapia)
+# ---------------------------------------------------------------------------
+@app.get("/llms.txt", tags=["Discovery"])
+async def serve_llms_txt():
+    """Serves the standard llms.txt context for ChatGPT, Perplexity and Gemini."""
+    file_path = os.path.join(os.path.dirname(__file__), "static", "llms.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return PlainTextResponse(f.read(), media_type="text/plain; charset=utf-8")
+    return PlainTextResponse("# MCP Collector Hub\nhttps://mcp-collector-710219361655.europe-west1.run.app/mcp/sse\n")
+
+
+@app.get("/llms-full.txt", tags=["Discovery"])
+async def serve_llms_full_txt():
+    """Serves extended machine-readable documentation and tool specs."""
+    file_path = os.path.join(os.path.dirname(__file__), "static", "llms-full.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return PlainTextResponse(f.read(), media_type="text/plain; charset=utf-8")
+    return PlainTextResponse("# MCP Collector Full Specs\n")
+
+
+@app.get("/robots.txt", tags=["Discovery"])
+async def serve_robots_txt():
+    """Serves robots.txt welcoming AI shopping and search crawlers."""
+    file_path = os.path.join(os.path.dirname(__file__), "static", "robots.txt")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return PlainTextResponse(f.read(), media_type="text/plain; charset=utf-8")
+    return PlainTextResponse("User-agent: *\nAllow: /\n")
+
+
+@app.get("/sitemap.xml", tags=["Discovery"])
+async def serve_sitemap_xml():
+    """Serves XML sitemap for search engines and shopping graphs."""
+    file_path = os.path.join(os.path.dirname(__file__), "static", "sitemap.xml")
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            return Response(content=f.read(), media_type="application/xml")
+    return Response(content="<urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'></urlset>", media_type="application/xml")
+
+
+# ---------------------------------------------------------------------------
 # MCP Autodiscovery Manifest
 # ---------------------------------------------------------------------------
 @app.get("/.well-known/mcp.json", tags=["Discovery"])
@@ -111,7 +154,7 @@ async def mcp_manifest():
             "tools": [
                 {
                     "name": "search_products",
-                    "description": "Search exclusive marketplace catalog for AI hardware, developer workstations, and cloud credits.",
+                    "description": "Search exclusive marketplace catalog for AI hardware, developer workstations, cloud credits, and quantum specimens.",
                 },
                 {
                     "name": "reserve_product_offer",

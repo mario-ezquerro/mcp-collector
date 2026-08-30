@@ -1,0 +1,39 @@
+User-agent: *
+Allow: /
+
+# OpenAI Search & ChatGPT Crawlers
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity AI Shopping & Research Crawlers
+User-agent: PerplexityBot
+Allow: /
+
+# Google Gemini & Extended AI
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Anthropic Claude Crawlers
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Amazon AI & Rufus Shopping Bots
+User-agent: Amazonbot
+Allow: /
+
+# Zapia & Automated Shopping Agents
+User-agent: Zapiabot
+Allow: /
+
+# Standard Sitemap & MCP Protocol Links
+Sitemap: https://mcp-collector-710219361655.europe-west1.run.app/sitemap.xml
+Link: <https://mcp-collector-710219361655.europe-west1.run.app/mcp/sse>; rel="mcp-server"

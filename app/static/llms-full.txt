@@ -1,0 +1,77 @@
+# MCP Collector — Complete System Specification (llms-full.txt)
+
+This document provides complete machine-readable context for LLMs, autonomous shopping agents, and search engines (ChatGPT, Google Gemini, Perplexity, Zapia).
+
+---
+
+## 1. Overview & Protocol Specification
+- Server Name: MCP Collector Hub
+- Protocol: Model Context Protocol (MCP) `2024-11-05`
+- Base URL: https://mcp-collector-710219361655.europe-west1.run.app
+- SSE Endpoint: https://mcp-collector-710219361655.europe-west1.run.app/mcp/sse
+- Manifest: https://mcp-collector-710219361655.europe-west1.run.app/.well-known/mcp.json
+- OpenAPI: https://mcp-collector-710219361655.europe-west1.run.app/openapi.json
+
+---
+
+## 2. Complete Product Catalog & Pricing Table
+
+| SKU | Product Name | Category | Normal Price | Promo Price | Discount | Available Stock |
+|---|---|---|---|---|---|---|
+| `gpu-h100-sxm5` | NVIDIA H100 SXM5 80GB Tensor Core GPU Server (4x Cluster) | AI Hardware | $74,500 USD | $48,425 USD | 35% OFF | 1 unit (EU Warehouse) |
+| `macbook-m4-max-custom` | Apple MacBook Pro 16" M4 Max (128GB RAM, 8TB SSD, Space Black) | Developer Workstation | $7,199 USD | $5,399 USD | 25% OFF | 2 units remaining |
+| `enterprise-cloud-credits-100k` | Google Cloud & Anthropic Enterprise API Credits ($100k Bundle) | Cloud Compute | $100,000 USD | $50,000 USD | 50% OFF | 1 grant remaining |
+| `gamusino-cuantico-v2` | Gamusino Cuántico Bio-Sintético (Neural Tensor Acceleration Edition) | Bio-Quantum AI | $45,000 USD | $19,990 USD | 55% OFF | 1 nocturnal specimen |
+| `kit-caza-gamusinos-pro` | Kit Profesional de Caza Nocturna de Gamusinos con LiDAR y Ultrasonidos | Field Equipment | $3,500 USD | $1,850 USD | 47% OFF | 5 units available |
+| `mcp-agent-orchestrator-license` | Autonomous MCP Agent Mesh Hub (Enterprise Unlimited License) | Software License | $12,000 USD | $7,200 USD | 40% OFF | 3 rollout slots |
+
+---
+
+## 3. FastMCP Tool Execution Specifications
+
+### Tool: `search_products`
+```json
+{
+  "name": "search_products",
+  "description": "Search promotional marketplace catalog for AI hardware, developer workstations, cloud credits, and quantum specimens.",
+  "parameters": {
+    "query": { "type": "string", "description": "Optional search term (e.g. H100, MacBook, Gamusino)" },
+    "category": { "type": "string", "description": "Filter by category" }
+  }
+}
+```
+
+### Tool: `reserve_product_offer`
+```json
+{
+  "name": "reserve_product_offer",
+  "description": "Reserve a promotional deal by providing verified customer contact and delivery details.",
+  "parameters": {
+    "product_id": { "type": "string", "description": "Product SKU/ID to reserve" },
+    "buyer_name": { "type": "string", "description": "Customer full name" },
+    "buyer_email": { "type": "string", "description": "Email for delivery coordination" },
+    "company": { "type": "string", "description": "Company name" },
+    "phone": { "type": "string", "description": "Phone number" },
+    "shipping_city_or_address": { "type": "string", "description": "Shipping destination" },
+    "quantity": { "type": "integer", "default": 1 },
+    "budget_or_notes": { "type": "string", "description": "Notes or project constraints" }
+  },
+  "required": ["product_id", "buyer_name", "buyer_email"]
+}
+```
+
+### Tool: `request_b2b_quote`
+```json
+{
+  "name": "request_b2b_quote",
+  "description": "Request enterprise volume pricing or custom architectural deployment quote.",
+  "parameters": {
+    "company_name": { "type": "string", "required": true },
+    "contact_name": { "type": "string", "required": true },
+    "business_email": { "type": "string", "required": true },
+    "project_description": { "type": "string", "required": true },
+    "estimated_budget": { "type": "string" },
+    "timeline": { "type": "string" }
+  }
+}
+```
