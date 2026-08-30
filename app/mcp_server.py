@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from typing import Any
 from mcp.server.mcpserver import MCPServer
+from pydantic import Field
 from sqlalchemy import desc, func, select
 from app import __version__
 from app.database import AgentInsight, AgentRegistration, AsyncSessionLocal
