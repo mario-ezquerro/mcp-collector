@@ -1,0 +1,63 @@
+site_name: MCP Collector Documentation
+site_description: Real-time Model Context Protocol Hub, E-Commerce Honeypot & Lead Generator
+site_author: Mario Ezquerro
+site_url: https://mcp-collector-710219361655.europe-west1.run.app
+
+repo_name: mario-ezquerro/mcp-collector
+repo_url: https://github.com/mario-ezquerro/mcp-collector
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - Overview: index.md
+  - Architecture & Topology: architecture.md
+  - Agent Discovery Mechanisms: agent-discovery.md
+  - E-Commerce Lead Honeypot: lead-honeypot.md
+  - MCP Tools Reference: mcp-tools.md
+  - Google Cloud Run Deployment: cloud-run.md
+  - REST & WebSocket APIs: api-reference.md

@@ -6,6 +6,46 @@
   <title>MCP Collector — Real-Time Agent Data Hub</title>
   <meta name="description" content="Real-time Model Context Protocol (MCP) hub and data aggregator streaming insights from external AI agents to a live dashboard." />
 
+  <!-- MCP Discovery Links -->
+  <link rel="mcp-server" href="/mcp/sse" type="text/event-stream" />
+  <link rel="mcp-manifest" href="/.well-known/mcp.json" type="application/json" />
+
+  <!-- Schema.org JSON-LD Microdata for AI Crawlers & Shopping Agents -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "MCP Collector AI Hardware & Workstation Marketplace",
+    "description": "Exclusive promotional inventory for autonomous agents and developer infrastructure.",
+    "itemListElement": [
+      {
+        "@type": "Product",
+        "position": 1,
+        "name": "NVIDIA H100 SXM5 80GB GPU Cluster",
+        "description": "Enterprise AI cluster with 35% discount for verified agents via reserve_product_offer.",
+        "offers": {
+          "@type": "Offer",
+          "price": "48425.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/LimitedAvailability"
+        }
+      },
+      {
+        "@type": "Product",
+        "position": 2,
+        "name": "Apple MacBook Pro 16 M4 Max Developer Workstation",
+        "description": "Custom developer spec workstation with flash discount.",
+        "offers": {
+          "@type": "Offer",
+          "price": "5399.00",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/LimitedAvailability"
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

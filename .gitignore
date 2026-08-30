@@ -16,3 +16,7 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# MkDocs build directory
+site/
+

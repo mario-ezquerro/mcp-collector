@@ -53,6 +53,15 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def add_mcp_discovery_headers(request, call_next):
+    """Injects HTTP Link and MCP version headers to inform AI agents & web crawlers."""
+    response = await call_next(request)
+    response.headers["Link"] = '</mcp/sse>; rel="mcp-server", </.well-known/mcp.json>; rel="mcp-manifest"'
+    response.headers["X-MCP-Version"] = __version__
+    return response
+
+
 # ---------------------------------------------------------------------------
 # Version & Health Checks for Google Cloud Run / Probes
 # ---------------------------------------------------------------------------
